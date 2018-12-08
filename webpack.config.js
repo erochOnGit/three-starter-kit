@@ -64,11 +64,6 @@ module.exports = {
       {
         test: /\.xml$/,
         use: ["xml-loader"]
-      },
-      ,
-      {
-        test: [/\.mp3$/, /\.dae$/, /\.jpg$/, /\.obj$/, /\.fbx$/],
-        use: ["file-loader?name=[path][name].[hash].[ext]"]
       }
     ]
   }

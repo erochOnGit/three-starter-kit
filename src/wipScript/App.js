@@ -6,6 +6,7 @@
 
 var OrbitControls = require("three-orbit-controls")(THREE);
 import * as dat from "dat.gui";
+import Boid from "./Boid";
 
 export default class App {
   constructor() {
@@ -18,9 +19,10 @@ export default class App {
       70,
       window.innerWidth / window.innerHeight,
       0.1,
-      10
+      1000
     );
-    this.camera.position.z = 1;
+    this.camera.position.z = 5;
+    this.camera.position.y = 5;
 
     this.controls = new OrbitControls(this.camera);
 
@@ -28,7 +30,6 @@ export default class App {
     var divisions = 10;
 
     var gridHelper = new THREE.GridHelper(size, divisions);
-    scene.add(gridHelper);
     // DAT.GUI Related Stuff
 
     var gui = new dat.GUI();
@@ -38,11 +39,24 @@ export default class App {
     // cam.open();
 
     this.scene = new THREE.Scene();
+    this.scene.add(gridHelper);
 
-    let geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    let material = new THREE.MeshNormalMaterial();
-    this.mesh = new THREE.Mesh(geometry, material);
-    this.scene.add(this.mesh);
+    // let geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    // let material = new THREE.MeshNormalMaterial();
+    // this.mesh = new THREE.Mesh(geometry, material);
+
+    this.boidsCount = 10;
+    // let datCubes = gui.addFolder("Cubes");
+    // datCubes.add(this, "cubesCount", 1, 1000).listen();
+    // datCubes.open();
+
+    this.Boids = [];
+    for (let index = 0; index < this.boidsCount; index++) {
+      this.Boids.push(
+        new Boid(new THREE.Vector3(Math.random(), Math.random(), Math.random()))
+      );
+      this.scene.add(this.Boids[index].mesh);
+    }
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
