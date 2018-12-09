@@ -45,17 +45,28 @@ export default class App {
     // let material = new THREE.MeshNormalMaterial();
     // this.mesh = new THREE.Mesh(geometry, material);
 
-    this.boidsCount = 10;
+    this.boidsCount = 300;
     // let datCubes = gui.addFolder("Cubes");
     // datCubes.add(this, "cubesCount", 1, 1000).listen();
     // datCubes.open();
 
-    this.Boids = [];
+    this.boids = [];
     for (let index = 0; index < this.boidsCount; index++) {
-      this.Boids.push(
-        new Boid(new THREE.Vector3(Math.random(), Math.random(), Math.random()))
+      this.boids.push(
+        new Boid(
+          new THREE.Vector3(
+            Math.random() * 2 - 1,
+            Math.random() * 2 - 1,
+            Math.random() * 2 - 1
+          ),
+          new THREE.Vector3(
+            (Math.random() * 5 - 2.5) / 100,
+            (Math.random() * 5 - 2.5) / 100,
+            (Math.random() * 5 - 2.5) / 100
+          )
+        )
       );
-      this.scene.add(this.Boids[index].mesh);
+      this.scene.add(this.boids[index].mesh);
     }
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -70,6 +81,12 @@ export default class App {
   }
 
   render() {
+    this.boids.forEach(boid => {
+      // boid.align(this.boids);
+      boid.flock(this.boids);
+      boid.edges();
+      boid.update();
+    });
     this.renderer.render(this.scene, this.camera);
   }
 
