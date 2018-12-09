@@ -21,8 +21,9 @@ export default class App {
       0.1,
       1000
     );
-    this.camera.position.z = 5;
+    this.camera.position.z = 10;
     this.camera.position.y = 5;
+    this.camera.position.x = 10;
 
     this.controls = new OrbitControls(this.camera);
 
@@ -45,7 +46,7 @@ export default class App {
     // let material = new THREE.MeshNormalMaterial();
     // this.mesh = new THREE.Mesh(geometry, material);
 
-    this.boidsCount = 300;
+    this.boidsCount = 200;
     // let datCubes = gui.addFolder("Cubes");
     // datCubes.add(this, "cubesCount", 1, 1000).listen();
     // datCubes.open();
@@ -55,14 +56,14 @@ export default class App {
       this.boids.push(
         new Boid(
           new THREE.Vector3(
-            Math.random() * 2 - 1,
-            Math.random() * 2 - 1,
-            Math.random() * 2 - 1
+            Math.random() * 9 - 4.5,
+            Math.random() * 9 - 4.5,
+            Math.random() * 9 - 4.5
           ),
           new THREE.Vector3(
-            (Math.random() * 5 - 2.5) / 100,
-            (Math.random() * 5 - 2.5) / 100,
-            (Math.random() * 5 - 2.5) / 100
+            Math.random() * 5 - 2.5 / 100,
+            Math.random() * 5 - 2.5 / 100,
+            Math.random() * 5 - 2.5 / 100
           )
         )
       );
