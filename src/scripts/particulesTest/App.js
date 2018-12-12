@@ -3,18 +3,20 @@
 
 // TODO : add Dat.GUI
 // TODO : add Stats
-
+import Tube from "./Tube";
 var OrbitControls = require("three-orbit-controls")(THREE);
 import * as dat from "dat.gui";
-import textureColor from "../assets/Blue_MarbleCOLOR.jpg";
-import texture2Color from "../assets/AzulejosCOLOR.jpg";
+import textureColor from "src/assets/Blue_MarbleCOLOR.jpg";
+import texture2Color from "src/assets/AzulejosCOLOR.jpg";
+import { TweenLite } from "gsap/TweenMax";
+import browserCheck from "src/utils/browserCheck";
 
 export default class App {
   constructor() {
-    // this.container = document.querySelector("#main");
     this.container = document.createElement("div");
     this.container.id = "main";
     document.body.appendChild(this.container);
+    document.body.classList.add(browserCheck());
 
     this.camera = new THREE.PerspectiveCamera(
       70,
@@ -24,7 +26,7 @@ export default class App {
     );
     this.camera.position.z = 1;
 
-    this.controls = new OrbitControls(this.camera);
+    // this.controls = new OrbitControls(this.camera);
 
     var size = 10;
     var divisions = 10;
@@ -42,28 +44,15 @@ export default class App {
     this.scene = new THREE.Scene();
 
     this.scene.add(gridHelper);
-
-    // let geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    // let material = new THREE.MeshNormalMaterial();
-    // this.mesh = new THREE.Mesh(geometry, material);
-    // this.scene.add(this.mesh);
-
-    this.geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-    var texture = new THREE.TextureLoader().load(textureColor);
-    var texture2 = new THREE.TextureLoader().load(texture2Color);
-
-    // immediately use the texture for material creation
-    this.material = new THREE.MeshBasicMaterial({
-      map: texture
+    this.backgroundTiles = [];
+    this.backgroundTiles.push(textureColor);
+    this.backgroundTiles.push(texture2Color);
+    this.backgroundTiles.map((texture, index) => {
+      let textureLoaded = new THREE.TextureLoader().load(texture);
+      let tube = new Tube(textureLoaded, index - 1);
+      this.scene.add(tube.mesh);
+      return tube;
     });
-    console.log(this.geometry);
-    console.log(this.material);
-    this.material.side = THREE.BackSide;
-    // this.material = new THREE.MeshBasicMaterial();
-    this.torus = new THREE.Mesh(this.geometry, this.material);
-    console.log(this.material);
-    console.log(this.torus);
-    this.scene.add(this.torus);
 
     let ambientLight = new THREE.AmbientLight(0x505050);
     this.scene.add(ambientLight);
@@ -77,8 +66,22 @@ export default class App {
 
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.onWindowResize();
-
+    let handleWheel = e => {
+      if (Object.values(document.body.classList).includes("isFirefox")) {
+        this.scrolling(e.deltaY); //we divide by 100 because it's too fast
+      } else {
+        this.scrolling(e.deltaY / 100); //we divide by 100 because it's too fast
+      }
+    };
+    window.addEventListener("wheel", handleWheel.bind(this));
     this.renderer.setAnimationLoop(this.render.bind(this));
+  }
+
+  scrolling(scroll) {
+    TweenLite.to(this.camera.position, 0.3, {
+      ease: Power1.easeOut,
+      y: this.camera.position.y - scroll
+    });
   }
 
   render() {
