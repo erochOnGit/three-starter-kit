@@ -8,14 +8,15 @@ var OrbitControls = require("three-orbit-controls")(THREE);
 import * as dat from "dat.gui";
 import textureColor from "../assets/Blue_MarbleCOLOR.jpg";
 import texture2Color from "../assets/AzulejosCOLOR.jpg";
-import { TweenMax } from "gsap/TweenMax";
+import { TweenLite } from "gsap/TweenMax";
+import browserCheck from "../utils/browserCheck";
 
 export default class App {
   constructor() {
-    // this.container = document.querySelector("#main");
     this.container = document.createElement("div");
     this.container.id = "main";
     document.body.appendChild(this.container);
+    document.body.classList.add(browserCheck());
 
     this.camera = new THREE.PerspectiveCamera(
       70,
@@ -44,19 +45,12 @@ export default class App {
 
     this.scene.add(gridHelper);
 
-    // let geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    // let material = new THREE.MeshNormalMaterial();
-    // this.mesh = new THREE.Mesh(geometry, material);
-    // this.scene.add(this.mesh);
-
-    // this.geometry = new THREE.TorusGeometry(10, 3, 16, 100);
     var texture = new THREE.TextureLoader().load(textureColor);
     var texture2 = new THREE.TextureLoader().load(texture2Color);
-    let tube = new Tube(texture);
+    let tube = new Tube(texture, 0);
+    let tube2 = new Tube(texture2, 3);
     this.scene.add(tube.mesh);
-    // this.material = new THREE.MeshBasicMaterial();
-    // this.torus = new THREE.Mesh(this.geometry, this.material);
-    // this.scene.add(this.torus);
+    this.scene.add(tube2.mesh);
 
     let ambientLight = new THREE.AmbientLight(0x505050);
     this.scene.add(ambientLight);
@@ -70,38 +64,26 @@ export default class App {
 
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.onWindowResize();
-    this.time = 0;
-    this.cameraDestination = this.camera.position.y;
-    console.log(this.camera.position.y);
+
     let handleWheel = e => {
-      this.scrolling(e.deltaY);
+      if (Object.values(document.body.classList).includes("isFirefox")) {
+        this.scrolling(e.deltaY); //we divide by 100 because it's too fast
+      } else {
+        this.scrolling(e.deltaY / 100); //we divide by 100 because it's too fast
+      }
     };
-    this.scrollEasing = 2;
     window.addEventListener("wheel", handleWheel.bind(this));
     this.renderer.setAnimationLoop(this.render.bind(this));
   }
 
   scrolling(scroll) {
-    let amount = this.camera.position.y + scroll / 100;
-    console.log(amount);
-    this.camera.position.y = amount;
+    TweenLite.to(this.camera.position, 0.3, {
+      ease: Power1.easeOut,
+      y: this.camera.position.y - scroll
+    });
   }
-  // // t = currentTime
-  // // b = beginnig value
-  // // c = change value (delta between `from` and `to`)
-  // // d = duration
-  // easeOutBack(t, b, c, d, s) {
-  //   if (s == undefined) s = 1.70158;
-  //   return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
-  // }
+
   render() {
-    // this.camera.position.y =
-    //   (this.cameraDestination - this.camera.position.y) * this.scrollEasing;
-
-    // console.log();
-    this.time += 0.01;
-    // this.camera.position.y = Math.sin(this.time) * 2;
-
     this.renderer.render(this.scene, this.camera);
   }
 

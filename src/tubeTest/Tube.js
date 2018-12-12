@@ -1,8 +1,8 @@
 export default class Tube {
-  constructor(texture) {
+  constructor(texture, y) {
     function CustomSinCurve(scale) {
       THREE.Curve.call(this);
-
+      this.y = y;
       this.scale = scale === undefined ? 1 : scale;
     }
 
@@ -12,7 +12,7 @@ export default class Tube {
     CustomSinCurve.prototype.getPoint = function(t) {
       var tx = 0;
       //   var ty = Math.sin(2 * Math.PI * t);
-      var ty = t * 3 - 1.5;
+      var ty = t * 3 - 1.5 + this.y;
       var tz = 0;
 
       return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
