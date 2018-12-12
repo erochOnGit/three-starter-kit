@@ -44,13 +44,15 @@ export default class App {
     this.scene = new THREE.Scene();
 
     this.scene.add(gridHelper);
-
-    var texture = new THREE.TextureLoader().load(textureColor);
-    var texture2 = new THREE.TextureLoader().load(texture2Color);
-    let tube = new Tube(texture, 0);
-    let tube2 = new Tube(texture2, 3);
-    this.scene.add(tube.mesh);
-    this.scene.add(tube2.mesh);
+    this.backgroundTiles = [];
+    this.backgroundTiles.push(textureColor);
+    this.backgroundTiles.push(texture2Color);
+    this.backgroundTiles.map((texture, index) => {
+      let textureLoaded = new THREE.TextureLoader().load(texture);
+      let tube = new Tube(textureLoaded, index - 1);
+      this.scene.add(tube.mesh);
+      return tube;
+    });
 
     let ambientLight = new THREE.AmbientLight(0x505050);
     this.scene.add(ambientLight);
@@ -64,7 +66,6 @@ export default class App {
 
     window.addEventListener("resize", this.onWindowResize.bind(this), false);
     this.onWindowResize();
-
     let handleWheel = e => {
       if (Object.values(document.body.classList).includes("isFirefox")) {
         this.scrolling(e.deltaY); //we divide by 100 because it's too fast
