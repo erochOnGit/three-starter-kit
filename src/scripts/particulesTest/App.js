@@ -8,6 +8,7 @@ var OrbitControls = require("three-orbit-controls")(THREE);
 import * as dat from "dat.gui";
 import textureColor from "src/assets/Blue_MarbleCOLOR.jpg";
 import texture2Color from "src/assets/AzulejosCOLOR.jpg";
+import poisson from "src/assets/poisson.png";
 import { TweenLite } from "gsap/TweenMax";
 import browserCheck from "src/utils/browserCheck";
 
@@ -45,14 +46,57 @@ export default class App {
 
     this.scene.add(gridHelper);
     this.backgroundTiles = [];
+    this.animatedTiles = [];
     this.backgroundTiles.push(textureColor);
     this.backgroundTiles.push(texture2Color);
     this.backgroundTiles.map((texture, index) => {
       let textureLoaded = new THREE.TextureLoader().load(texture);
-      let tube = new Tube(textureLoaded, index - 1);
+      let tube = new Tube(textureLoaded, 0, index, 0, 5, 10);
       this.scene.add(tube.mesh);
       return tube;
     });
+
+      this.animatedTiles.push(poisson);
+      this.animatedTiles.map((texture, index) => {
+        let textureLoaded = new THREE.TextureLoader().load(texture);
+        let tube = new Tube(textureLoaded, 0, index, 0, 2, 4);
+        this.scene.add(tube.mesh);
+        return tube;
+      });
+    // create the particle variables
+    this.particleCount = 1800;
+
+    var particles = new THREE.Geometry();
+    var pMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.2,
+      map: new THREE.TextureLoader().load(textureColor),
+      blending: THREE.AdditiveBlending,
+      transparent: true
+    });
+
+    // now create the individual particles
+    for (var p = 0; p < this.particleCount; p++) {
+      // create a particle with random
+      // position values, -250 -> 250
+      var particle = new THREE.Vector3();
+      particle.x = THREE.Math.randFloatSpread(20);
+      particle.y = THREE.Math.randFloatSpread(20);
+      particle.z = THREE.Math.randFloatSpread(20);
+      particle.velocity = new THREE.Vector3(
+        0, // x
+        -Math.random(), // y: random vel
+        0
+      );
+      // add it to the geometry
+      particles.vertices.push(particle);
+    }
+
+    // create the particle system
+    this.particleSystem = new THREE.Points(particles, pMaterial);
+
+    // add it to the scene
+    this.scene.add(this.particleSystem);
 
     let ambientLight = new THREE.AmbientLight(0x505050);
     this.scene.add(ambientLight);
@@ -85,6 +129,8 @@ export default class App {
   }
 
   render() {
+    // this.particleSystem.rotation.y += 0.01;
+
     this.renderer.render(this.scene, this.camera);
   }
 
