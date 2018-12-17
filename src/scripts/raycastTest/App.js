@@ -4,7 +4,8 @@
 // TODO : add Dat.GUI
 // TODO : add Stats
 import Tube from "./Tube";
-import Particles from "./Particles";
+import Plain from "./Plain";
+// import Particles from "./Particles";
 var OrbitControls = require("three-orbit-controls")(THREE);
 import * as dat from "dat.gui";
 import textureColor from "src/assets/Blue_MarbleCOLOR.jpg";
@@ -29,6 +30,9 @@ export default class App {
     this.camera.position.z = 1;
 
     this.controls = new OrbitControls(this.camera);
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+    this.intersects = [];
 
     var size = 10;
     var divisions = 10;
@@ -52,7 +56,7 @@ export default class App {
     this.backgroundTiles.push(texture2Color);
     this.backgroundTiles.map((texture, index) => {
       let textureLoaded = new THREE.TextureLoader().load(texture);
-      let tube = new Tube(textureLoaded, 0, index, 0, 5, 10);
+      let tube = new Tube(textureLoaded, 0, index, -index / 100, 5, 10);
       this.scene.add(tube.mesh);
       return tube;
     });
@@ -60,14 +64,13 @@ export default class App {
     this.animatedTiles.push(poisson);
     this.animatedTiles.map((texture, index) => {
       let textureLoaded = new THREE.TextureLoader().load(texture);
-      let tube = new Tube(textureLoaded, 0, index, -2, 1, 1);
+      let tube = new Plain(textureLoaded, 0, 0, -2, 0.5, 0.5, 30);
       this.scene.add(tube.mesh);
       return tube;
     });
 
-    this.particleSystem = new Particle();
-    // add it to the scene
-    this.scene.add(this.particleSystem.mesh);
+    // this.particleSystem = new Particle();
+    // this.scene.add(this.particleSystem.mesh);
 
     let ambientLight = new THREE.AmbientLight(0x505050);
     this.scene.add(ambientLight);
@@ -89,6 +92,23 @@ export default class App {
       }
     };
     // window.addEventListener("wheel", handleWheel.bind(this));
+    let raycastClick = event => {
+      // calculate mouse position in normalized device coordinates
+      // (-1 to +1) for both components
+      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      // update the picking ray with the camera and mouse position
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      // calculate objects intersecting the picking ray
+      this.intersects = this.raycaster.intersectObjects(this.scene.children);
+
+      for (var i = 0; i < this.intersects.length; i++) {
+        this.intersects[i].object.material.color.set(0xff0000);
+      }
+    };
+    window.addEventListener("click", raycastClick.bind(this));
     this.renderer.setAnimationLoop(this.render.bind(this));
   }
 
