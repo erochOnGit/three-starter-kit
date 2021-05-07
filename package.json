@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "three": "^0.99.0",
     "three-orbit-controls": "^82.1.0"
   }
